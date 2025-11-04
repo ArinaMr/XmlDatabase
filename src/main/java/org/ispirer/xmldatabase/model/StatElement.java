@@ -16,13 +16,16 @@ public class StatElement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long parentId;
     private String elementType;
     private String xmlId;
     private String xmlSchema;
     private String xmlName;
 
-    @OneToMany
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private StatElement parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<StatElement> children = new ArrayList<>();
 
     @OneToMany(mappedBy = "element", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

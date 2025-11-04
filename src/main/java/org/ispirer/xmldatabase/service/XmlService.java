@@ -8,19 +8,23 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class XmlService {
     private final StatElementRepository statElementRepository;
 
+    private static final Set<String> IGNORED_ATTRIBUTES = Set.of("id", "name", "schema");
+
     public void importXml(File xmlFile) throws IOException, SAXException, ParserConfigurationException {
-        var factory = DocumentBuilderFactory.newInstance();
-        var builder = factory.newDocumentBuilder();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(xmlFile);
         doc.getDocumentElement().normalize();
 
@@ -29,16 +33,29 @@ public class XmlService {
     }
 
     private StatElement parseElement(Element xmlElement, StatElement parent) {
-        StatElement statElement = new StatElement();
-        statElement.setXmlName(xmlElement.getTagName());
-        statElement.setParentId(parent.getId());
+        NamedNodeMap attributes = xmlElement.getAttributes();
 
-        NamedNodeMap attrs = xmlElement.getAttributes();
-        for (int i = 0; i < attrs.getLength(); i++) {
-            Node a = attrs.item(i);
+        StatElement statElement = new StatElement();
+        statElement.setElementType(xmlElement.getTagName());
+        statElement.setXmlId(getAttribute(attributes, "id"));
+        statElement.setXmlName(getAttribute(attributes, "name"));
+        statElement.setXmlSchema(getAttribute(attributes, "schema"));
+
+        if (parent != null) {
+            statElement.setParent(parent);
+        }
+
+        for (int i = 0; i < attributes.getLength(); i++) {
+            Node node = attributes.item(i);
+            String attrName = node.getNodeName();
+
+            if (IGNORED_ATTRIBUTES.contains(attrName)) {
+                continue;
+            }
+
             StatAttribute attr = new StatAttribute();
-            attr.setAttributeName(a.getNodeName());
-            attr.setAttributeValue(a.getNodeValue());
+            attr.setAttributeName(attrName);
+            attr.setAttributeValue(node.getNodeValue());
             attr.setElement(statElement);
             statElement.getAttributes().add(attr);
         }
@@ -53,6 +70,11 @@ public class XmlService {
         }
 
         return statElement;
+    }
+
+    private String getAttribute(NamedNodeMap attrs, String name) {
+        Node node = attrs.getNamedItem(name);
+        return node != null ? node.getNodeValue() : null;
     }
 
     public String exportXml(Long id) {
