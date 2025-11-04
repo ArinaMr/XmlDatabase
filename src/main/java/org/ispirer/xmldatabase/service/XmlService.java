@@ -90,27 +90,25 @@ public class XmlService {
     private void buildXml(StatElement element, StringBuilder sb) {
         sb.append("<").append(element.getElementType());
 
-        // Добавляем поля, которые отдельно хранятся в сущности
-        if (element.getXmlId() != null) {
-            sb.append(" xml_id=\"").append(element.getXmlId()).append("\"");
-        }
-        if (element.getXmlName() != null) {
-            sb.append(" xml_name=\"").append(element.getXmlName()).append("\"");
-        }
-        if (element.getXmlSchema() != null) {
-            sb.append(" xml_schema=\"").append(element.getXmlSchema()).append("\"");
+        // Основные атрибуты из полей сущности
+        if (element.getXmlId() != null) sb.append(" id=\"").append(element.getXmlId()).append("\"");
+        if (element.getXmlName() != null) sb.append(" name=\"").append(element.getXmlName()).append("\"");
+        if (element.getXmlSchema() != null) sb.append(" schema=\"").append(element.getXmlSchema()).append("\"");
+
+        // Атрибуты из StatAttribute
+        if (element.getAttributes() != null) {
+            for (StatAttribute attr : element.getAttributes()) {
+                if (attr.getAttributeName() != null && attr.getAttributeValue() != null) {
+                    sb.append(" ")
+                            .append(attr.getAttributeName())
+                            .append("=\"")
+                            .append(attr.getAttributeValue())
+                            .append("\"");
+                }
+            }
         }
 
-        // Добавляем остальные атрибуты
-        for (StatAttribute attr : element.getAttributes()) {
-            sb.append(" ")
-                    .append(attr.getAttributeName())
-                    .append("=\"")
-                    .append(attr.getAttributeValue())
-                    .append("\"");
-        }
-
-        if (element.getChildren().isEmpty()) {
+        if (element.getChildren() == null || element.getChildren().isEmpty()) {
             sb.append("/>");
         } else {
             sb.append(">");

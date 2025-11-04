@@ -25,7 +25,7 @@ public class StatElement {
     @JoinColumn(name = "parent_id")
     private StatElement parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StatElement> children = new ArrayList<>();
 
     @OneToMany(mappedBy = "element", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
