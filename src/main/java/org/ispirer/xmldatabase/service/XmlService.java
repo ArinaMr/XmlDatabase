@@ -77,7 +77,47 @@ public class XmlService {
         return node != null ? node.getNodeValue() : null;
     }
 
-    public String exportXml(Long id) {
-        return null;
+    public String exportXml(String xmlId) {
+        // Ищем корневой элемент по xmlId
+        StatElement root = statElementRepository.findByXmlId(xmlId)
+                .orElseThrow(() -> new RuntimeException("Element not found: " + xmlId));
+
+        StringBuilder sb = new StringBuilder();
+        buildXml(root, sb);
+        return sb.toString();
+    }
+
+    private void buildXml(StatElement element, StringBuilder sb) {
+        sb.append("<").append(element.getElementType());
+
+        // Добавляем поля, которые отдельно хранятся в сущности
+        if (element.getXmlId() != null) {
+            sb.append(" xml_id=\"").append(element.getXmlId()).append("\"");
+        }
+        if (element.getXmlName() != null) {
+            sb.append(" xml_name=\"").append(element.getXmlName()).append("\"");
+        }
+        if (element.getXmlSchema() != null) {
+            sb.append(" xml_schema=\"").append(element.getXmlSchema()).append("\"");
+        }
+
+        // Добавляем остальные атрибуты
+        for (StatAttribute attr : element.getAttributes()) {
+            sb.append(" ")
+                    .append(attr.getAttributeName())
+                    .append("=\"")
+                    .append(attr.getAttributeValue())
+                    .append("\"");
+        }
+
+        if (element.getChildren().isEmpty()) {
+            sb.append("/>");
+        } else {
+            sb.append(">");
+            for (StatElement child : element.getChildren()) {
+                buildXml(child, sb);
+            }
+            sb.append("</").append(element.getElementType()).append(">");
+        }
     }
 }

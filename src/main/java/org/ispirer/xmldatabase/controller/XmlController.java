@@ -33,7 +33,7 @@ public class XmlController {
 
     @GetMapping("/export/{id}")
     @ResponseBody
-    public ResponseEntity<String> exportXml(@PathVariable Long id) {
+    public ResponseEntity<String> exportXml(@PathVariable String id) {
         try {
             String xml = xmlService.exportXml(id);
             return ResponseEntity.ok()
