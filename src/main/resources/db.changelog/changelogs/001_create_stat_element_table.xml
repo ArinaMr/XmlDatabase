@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001_create_stat_element_table" author="arinamandrik@ispirer.com">
+        <createTable tableName="stat_element">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="parent_id" type="INTEGER"/>
+            <column name="element_type" type="TEXT"/>
+            <column name="xml_id" type="TEXT"/>
+            <column name="xml_schema" type="TEXT"/>
+            <column name="xml_name" type="TEXT"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

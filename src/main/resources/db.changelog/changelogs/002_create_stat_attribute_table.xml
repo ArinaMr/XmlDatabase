@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="002_create_stat_attribute_table" author="arinamandrik@ispirer.com">
+        <createTable tableName="stat_attribute">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="element_id" type="INTEGER">
+                <constraints nullable="false" foreignKeyName="fk_stat_attribute_element"
+                             references="stat_element(id)"/>
+            </column>
+            <column name="attribute_name" type="TEXT"/>
+            <column name="attribute_value" type="TEXT"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
