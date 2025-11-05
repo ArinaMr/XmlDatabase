@@ -45,4 +45,23 @@ public class XmlController {
                     .body("Failed to export XML: " + e.getMessage());
         }
     }
+
+    @GetMapping("/export")
+    @ResponseBody
+    public ResponseEntity<String> exportXml(
+            @RequestParam String name,
+            @RequestParam(required = false) String schema) {
+        try {
+            String xml = xmlService.exportXml(name, schema);
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/xml; charset=UTF-8")
+                    .body(xml);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body("Failed to export XML: " + e.getMessage());
+        }
+    }
 }

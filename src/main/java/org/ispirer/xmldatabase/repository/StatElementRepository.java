@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface StatElementRepository extends JpaRepository<StatElement, Long> {
     Optional<StatElement> findByXmlId(String xmlId);
 
+    Optional<StatElement> findByXmlSchemaAndXmlName(String xmlSchema, String xmlName);
+
     //@Query("SELECT e FROM StatElement e LEFT JOIN FETCH e.attributes WHERE e.xmlId = :xmlId")
     //Optional<StatElement> findByXmlIdWithAttributes(@Param("xmlId") String xmlId);
 }

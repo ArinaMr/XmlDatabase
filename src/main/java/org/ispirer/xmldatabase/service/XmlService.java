@@ -87,6 +87,18 @@ public class XmlService {
         return sb.toString();
     }
 
+    public String exportXml(String name, String schema) {
+        // Ищем корневой элемент по xml_schema и xml_name
+        StatElement root = statElementRepository
+                .findByXmlSchemaAndXmlName(schema, name)
+                .orElseThrow(() -> new RuntimeException(
+                        "Element not found for schema=" + schema + ", name=" + name));
+
+        StringBuilder sb = new StringBuilder();
+        buildXml(root, sb);
+        return sb.toString();
+    }
+
     private void buildXml(StatElement element, StringBuilder sb) {
         sb.append("<").append(element.getElementType());
 
