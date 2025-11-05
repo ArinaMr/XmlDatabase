@@ -64,4 +64,21 @@ public class XmlController {
                     .body("Failed to export XML: " + e.getMessage());
         }
     }
+
+    @PostMapping("/transform")
+    public ResponseEntity<String> transformXml(
+            @RequestParam("xmlFile") MultipartFile xmlFile,
+            @RequestParam("xsltFile") MultipartFile xsltFile,
+            @RequestParam("externalFile") MultipartFile externalFile) {
+        try {
+            String result = xmlService.xsltTransform(xmlFile, xsltFile, externalFile);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/xml; charset=UTF-8")
+                    .body(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body("Failed to transform XML: " + e.getMessage());
+        }
+    }
 }

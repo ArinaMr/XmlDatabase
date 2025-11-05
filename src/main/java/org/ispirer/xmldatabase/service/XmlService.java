@@ -5,20 +5,29 @@ import org.ispirer.xmldatabase.model.StatAttribute;
 import org.ispirer.xmldatabase.model.StatElement;
 import org.ispirer.xmldatabase.repository.StatElementRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class XmlService {
     private final StatElementRepository statElementRepository;
+
+    private static final Logger logger = Logger.getLogger(XmlService.class.getName());
 
     private static final Set<String> IGNORED_ATTRIBUTES = Set.of("id", "name", "schema");
 
@@ -78,24 +87,28 @@ public class XmlService {
     }
 
     public String exportXml(String xmlId) {
-        // Ищем корневой элемент по xmlId
-        StatElement root = statElementRepository.findByXmlId(xmlId)
-                .orElseThrow(() -> new RuntimeException("Element not found: " + xmlId));
+        List<StatElement> roots = statElementRepository.findByXmlId(xmlId);
+        if (roots.isEmpty()) {
+            throw new RuntimeException("Element not found: " + xmlId);
+        }
 
         StringBuilder sb = new StringBuilder();
-        buildXml(root, sb);
+        for (StatElement root : roots) {
+            buildXml(root, sb);
+        }
         return sb.toString();
     }
 
     public String exportXml(String name, String schema) {
-        // Ищем корневой элемент по xml_schema и xml_name
-        StatElement root = statElementRepository
-                .findByXmlSchemaAndXmlName(schema, name)
-                .orElseThrow(() -> new RuntimeException(
-                        "Element not found for schema=" + schema + ", name=" + name));
+        List<StatElement> roots = statElementRepository.findByXmlSchemaAndXmlName(schema, name);
+        if (roots.isEmpty()) {
+            throw new RuntimeException("Element not found for schema=" + schema + ", name=" + name);
+        }
 
         StringBuilder sb = new StringBuilder();
-        buildXml(root, sb);
+        for (StatElement root : roots) {
+            buildXml(root, sb);
+        }
         return sb.toString();
     }
 
@@ -130,4 +143,38 @@ public class XmlService {
             sb.append("</").append(element.getElementType()).append(">");
         }
     }
+
+    public String xsltTransform(MultipartFile xmlFile, MultipartFile xsltFile, MultipartFile externalFile)
+            throws IOException, TransformerException {
+
+        // Сохраняем временно все файлы на диск
+        File xmlTmp = File.createTempFile("xml_upload", ".xml");
+        File xsltTmp = File.createTempFile("xslt_upload", ".xslt");
+        File extTmp = File.createTempFile("external", ".xml");
+
+        xmlFile.transferTo(xmlTmp);
+        xsltFile.transferTo(xsltTmp);
+        externalFile.transferTo(extTmp);
+
+        // В Java document() ищет файл по URI, поэтому используем абсолютный путь
+        String externalPath = extTmp.toURI().toString();
+
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Templates template = factory.newTemplates(new StreamSource(xsltTmp));
+        Transformer transformer = template.newTransformer();
+
+        // Передаем путь к внешнему документу через параметр XSLT
+        transformer.setParameter("externalUri", externalPath);
+
+        StringWriter writer = new StringWriter();
+        transformer.transform(new StreamSource(xmlTmp), new StreamResult(writer));
+
+        // Удаляем временные файлы
+        xmlTmp.delete();
+        xsltTmp.delete();
+        extTmp.delete();
+
+        return writer.toString();
+    }
+
 }

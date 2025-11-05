@@ -32,6 +32,7 @@
         <maven.compiler.target>17</maven.compiler.target>
 		<lombok.version>1.18.34</lombok.version>
 		<org.xerial.sqlite.jdbc.version>3.50.3.0</org.xerial.sqlite.jdbc.version>
+		<org.liquibase.core.version>5.0.1</org.liquibase.core.version>
     </properties>
 	<dependencies>
 		<dependency>
@@ -47,6 +48,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.xerial</groupId>

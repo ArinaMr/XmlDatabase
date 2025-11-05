@@ -2,18 +2,13 @@ package org.ispirer.xmldatabase.repository;
 
 import org.ispirer.xmldatabase.model.StatElement;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface StatElementRepository extends JpaRepository<StatElement, Long> {
-    Optional<StatElement> findByXmlId(String xmlId);
+    List<StatElement> findByXmlId(String xmlId);
 
-    Optional<StatElement> findByXmlSchemaAndXmlName(String xmlSchema, String xmlName);
-
-    //@Query("SELECT e FROM StatElement e LEFT JOIN FETCH e.attributes WHERE e.xmlId = :xmlId")
-    //Optional<StatElement> findByXmlIdWithAttributes(@Param("xmlId") String xmlId);
+    List<StatElement> findByXmlSchemaAndXmlName(String xmlSchema, String xmlName);
 }
